@@ -7,9 +7,10 @@ import (
 )
 
 type RouteConfig struct {
-	Router             *gin.Engine
-	CustomerController *http.CustomerController
-	ProductController  *http.ProductController
+	Router                *gin.Engine
+	CustomerController    *http.CustomerController
+	ProductController     *http.ProductController
+	TransactionController *http.TransactionController
 }
 
 func (c *RouteConfig) Setup() {
@@ -17,5 +18,6 @@ func (c *RouteConfig) Setup() {
 
 	c.RegisterCustomerRoutes(api)
 	c.RegisterProductRoutes(api)
+	c.RegisterTransactionRoutes(api)
 	c.RegisterCommonRoutes(c.Router)
 }

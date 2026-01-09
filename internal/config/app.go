@@ -27,6 +27,7 @@ func Bootstrap(config *BootstrapConfig) {
 	// Setup repositories
 	customerRepository := repository.NewCustomerRepository(config.Log)
 	productRepository := repository.NewProductRepository(config.Log)
+	transactionRepository := repository.NewTransactionRepository(config.Log)
 
 	// Setup use cases
 	customerUseCase := usecase.NewCustomerUseCase(
@@ -40,6 +41,13 @@ func Bootstrap(config *BootstrapConfig) {
 		productRepository,
 		config.Cache,
 	)
+	transactionUseCase := usecase.NewTransactionUseCase(
+		config.DB,
+		config.Log,
+		customerRepository,
+		productRepository,
+		transactionRepository,
+	)
 
 	// Setup controllers
 	customerController := http.NewCustomerController(
@@ -48,12 +56,18 @@ func Bootstrap(config *BootstrapConfig) {
 		config.Validate,
 	)
 	productController := http.NewProductController(productUseCase, config.Log, config.Validate)
+	transactionController := http.NewTransactionController(
+		transactionUseCase,
+		config.Log,
+		config.Validate,
+	)
 
 	// Setup routes
 	routeConfig := route.RouteConfig{
-		Router:             config.Router,
-		CustomerController: customerController,
-		ProductController:  productController,
+		Router:                config.Router,
+		CustomerController:    customerController,
+		ProductController:     productController,
+		TransactionController: transactionController,
 	}
 	routeConfig.Setup()
 }
