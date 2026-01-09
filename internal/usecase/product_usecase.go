@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"snack-store-api/internal/cache"
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/entity"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/model"
@@ -17,8 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
-
-const productCacheTTL = 5 * time.Minute
 
 type ProductUseCase struct {
 	DB                *gorm.DB
@@ -82,7 +81,7 @@ func (c *ProductUseCase) ListByDate(
 		payload, err := json.Marshal(responses)
 		if err != nil {
 			c.Log.Warnf("Failed to encode product cache : %+v", err)
-		} else if err := c.Cache.Set(ctx, cacheKey, string(payload), productCacheTTL); err != nil {
+		} else if err := c.Cache.Set(ctx, cacheKey, string(payload), constants.ProductCacheTTL); err != nil {
 			c.Log.Warnf("Failed to set product cache : %+v", err)
 		}
 	}
@@ -126,5 +125,5 @@ func (c *ProductUseCase) Create(
 }
 
 func productCacheKey(date string) string {
-	return "products:date:" + date
+	return constants.ProductCacheKeyPrefix + date
 }

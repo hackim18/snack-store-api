@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"snack-store-api/internal/cache"
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/entity"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/model"
@@ -152,12 +153,12 @@ func (c *RedemptionUseCase) invalidateCaches(ctx context.Context, product *entit
 		return
 	}
 
-	cacheKey := "products:date:" + product.ManufacturedDate.Format("2006-01-02")
+	cacheKey := constants.ProductCacheKeyPrefix + product.ManufacturedDate.Format("2006-01-02")
 	if err := c.Cache.Del(ctx, cacheKey); err != nil {
 		c.Log.Warnf("Failed to invalidate product cache : %+v", err)
 	}
 
-	if err := c.Cache.DelByPrefix(ctx, "report:transactions:"); err != nil {
+	if err := c.Cache.DelByPrefix(ctx, constants.ReportCacheKeyPrefix); err != nil {
 		c.Log.Warnf("Failed to invalidate report cache : %+v", err)
 	}
 }

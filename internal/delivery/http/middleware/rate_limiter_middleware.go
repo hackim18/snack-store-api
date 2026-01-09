@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/utils"
 
@@ -48,9 +49,9 @@ func NewRateLimiterWithRate(rateStr string, redis *redis.Client) gin.HandlerFunc
 			return
 		}
 
-		ctx.Header("X-RateLimit-Limit", fmt.Sprintf("%d", limiterCtx.Limit))
-		ctx.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", limiterCtx.Remaining))
-		ctx.Header("X-RateLimit-Reset", fmt.Sprintf("%d", limiterCtx.Reset))
+		ctx.Header(constants.RateLimitLimitHeader, fmt.Sprintf("%d", limiterCtx.Limit))
+		ctx.Header(constants.RateLimitRemainingHeader, fmt.Sprintf("%d", limiterCtx.Remaining))
+		ctx.Header(constants.RateLimitResetHeader, fmt.Sprintf("%d", limiterCtx.Reset))
 
 		if limiterCtx.Reached {
 			utils.HandleHTTPError(ctx, utils.Error(messages.TooManyRequests, http.StatusTooManyRequests, nil))

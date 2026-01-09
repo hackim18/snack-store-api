@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"snack-store-api/internal/cache"
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/entity"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/model"
@@ -18,10 +19,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	reportCacheTTL           = 2 * time.Minute
-	reportLastTransactionLim = 10
-)
+const reportLastTransactionLim = 10
 
 type ReportUseCase struct {
 	DB               *gorm.DB
@@ -151,7 +149,7 @@ func (c *ReportUseCase) Transactions(
 		payload, err := json.Marshal(response)
 		if err != nil {
 			c.Log.Warnf("Failed to encode report cache : %+v", err)
-		} else if err := c.Cache.Set(ctx, cacheKey, string(payload), reportCacheTTL); err != nil {
+		} else if err := c.Cache.Set(ctx, cacheKey, string(payload), constants.ReportCacheTTL); err != nil {
 			c.Log.Warnf("Failed to set report cache : %+v", err)
 		}
 	}
@@ -180,5 +178,5 @@ func mapReportTransaction(transaction *entity.Transaction) *model.ReportTransact
 }
 
 func reportCacheKey(startDate, endDate string) string {
-	return "report:transactions:" + startDate + ":" + endDate
+	return constants.ReportCacheKeyPrefix + startDate + ":" + endDate
 }
