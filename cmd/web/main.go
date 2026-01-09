@@ -15,7 +15,7 @@ func main() {
 	cacheClient := cache.NewRedisCache(redisClient)
 	executor := command.NewCommandExecutor(viperConfig, db)
 	validate := config.NewValidator()
-	router := config.NewGin()
+	router := config.NewGin(log)
 
 	config.Bootstrap(&config.BootstrapConfig{
 		DB:       db,
