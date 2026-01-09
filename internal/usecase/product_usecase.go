@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"snack-store-api/internal/cache"
+	"snack-store-api/internal/entity"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/model"
 	"snack-store-api/internal/model/converter"
@@ -87,6 +88,41 @@ func (c *ProductUseCase) ListByDate(
 	}
 
 	return responses, nil
+}
+
+func (c *ProductUseCase) Create(
+	ctx context.Context,
+	request *model.CreateProductRequest,
+) (*model.ProductResponse, error) {
+	manufacturedDate, err := time.Parse("2006-01-02", request.ManufacturedDate)
+	if err != nil {
+		c.Log.Warnf("Invalid manufactured_date format : %+v", err)
+		return nil, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
+	}
+
+	product := entity.Product{
+		Name:             request.Name,
+		Type:             request.Type,
+		Flavor:           request.Flavor,
+		Size:             request.Size,
+		Price:            request.Price,
+		StockQty:         request.StockQty,
+		ManufacturedDate: manufacturedDate,
+	}
+
+	if err := c.ProductRepository.Create(c.DB.WithContext(ctx), &product); err != nil {
+		c.Log.Warnf("Failed to create product : %+v", err)
+		return nil, utils.Error(messages.ErrCreateProduct, http.StatusInternalServerError, err)
+	}
+
+	if c.Cache != nil {
+		cacheKey := productCacheKey(request.ManufacturedDate)
+		if err := c.Cache.Del(ctx, cacheKey); err != nil {
+			c.Log.Warnf("Failed to invalidate product cache : %+v", err)
+		}
+	}
+
+	return converter.ProductToResponse(&product), nil
 }
 
 func productCacheKey(date string) string {

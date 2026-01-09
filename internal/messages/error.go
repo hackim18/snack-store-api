@@ -12,4 +12,5 @@ const (
 	ErrInvalidIDFormat       = "Invalid ID format"
 	ConflictError            = "Resource conflict"
 	StatusNotFound           = "Resource not found"
+	ErrCreateProduct         = "Failed to create product"
 )
