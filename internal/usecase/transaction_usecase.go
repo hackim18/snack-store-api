@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"snack-store-api/internal/cache"
 	"snack-store-api/internal/entity"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/model"
@@ -26,6 +27,7 @@ type TransactionUseCase struct {
 	CustomerRepository    *repository.CustomerRepository
 	ProductRepository     *repository.ProductRepository
 	TransactionRepository *repository.TransactionRepository
+	Cache                 cache.Cache
 }
 
 func NewTransactionUseCase(
@@ -34,6 +36,7 @@ func NewTransactionUseCase(
 	customerRepository *repository.CustomerRepository,
 	productRepository *repository.ProductRepository,
 	transactionRepository *repository.TransactionRepository,
+	cacheStore cache.Cache,
 ) *TransactionUseCase {
 	return &TransactionUseCase{
 		DB:                    db,
@@ -41,6 +44,7 @@ func NewTransactionUseCase(
 		CustomerRepository:    customerRepository,
 		ProductRepository:     productRepository,
 		TransactionRepository: transactionRepository,
+		Cache:                 cacheStore,
 	}
 }
 
@@ -128,6 +132,8 @@ func (c *TransactionUseCase) Create(
 	transaction.Customer = customer
 	transaction.Product = product
 
+	c.invalidateCaches(ctx, &product)
+
 	return converter.TransactionToResponse(&transaction), nil
 }
 
@@ -169,6 +175,21 @@ func (c *TransactionUseCase) List(
 	}
 
 	return responses, nil
+}
+
+func (c *TransactionUseCase) invalidateCaches(ctx context.Context, product *entity.Product) {
+	if c.Cache == nil || product == nil {
+		return
+	}
+
+	cacheKey := "products:date:" + product.ManufacturedDate.Format("2006-01-02")
+	if err := c.Cache.Del(ctx, cacheKey); err != nil {
+		c.Log.Warnf("Failed to invalidate product cache : %+v", err)
+	}
+
+	if err := c.Cache.DelByPrefix(ctx, "report:transactions:"); err != nil {
+		c.Log.Warnf("Failed to invalidate report cache : %+v", err)
+	}
 }
 
 func (c *TransactionUseCase) findOrCreateCustomer(tx *gorm.DB, name string) (entity.Customer, error) {

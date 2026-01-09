@@ -29,18 +29,21 @@ func Bootstrap(config *BootstrapConfig) {
 	productRepository := repository.NewProductRepository(config.Log)
 	transactionRepository := repository.NewTransactionRepository(config.Log)
 	redemptionRepository := repository.NewRedemptionRepository(config.Log)
+	reportRepository := repository.NewReportRepository(config.Log)
 
 	// Setup use cases
 	customerUseCase := usecase.NewCustomerUseCase(config.DB, config.Log, customerRepository)
 	productUseCase := usecase.NewProductUseCase(config.DB, config.Log, productRepository, config.Cache)
-	transactionUseCase := usecase.NewTransactionUseCase(config.DB, config.Log, customerRepository, productRepository, transactionRepository)
-	redemptionUseCase := usecase.NewRedemptionUseCase(config.DB, config.Log, customerRepository, productRepository, redemptionRepository)
+	transactionUseCase := usecase.NewTransactionUseCase(config.DB, config.Log, customerRepository, productRepository, transactionRepository, config.Cache)
+	redemptionUseCase := usecase.NewRedemptionUseCase(config.DB, config.Log, customerRepository, productRepository, redemptionRepository, config.Cache)
+	reportUseCase := usecase.NewReportUseCase(config.DB, config.Log, reportRepository, config.Cache)
 
 	// Setup controllers
 	customerController := http.NewCustomerController(customerUseCase, config.Log, config.Validate)
 	productController := http.NewProductController(productUseCase, config.Log, config.Validate)
 	transactionController := http.NewTransactionController(transactionUseCase, config.Log, config.Validate)
 	redemptionController := http.NewRedemptionController(redemptionUseCase, config.Log, config.Validate)
+	reportController := http.NewReportController(reportUseCase, config.Log, config.Validate)
 
 	// Setup routes
 	routeConfig := route.RouteConfig{
@@ -49,6 +52,7 @@ func Bootstrap(config *BootstrapConfig) {
 		ProductController:     productController,
 		TransactionController: transactionController,
 		RedemptionController:  redemptionController,
+		ReportController:      reportController,
 	}
 	routeConfig.Setup()
 }

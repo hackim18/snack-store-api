@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"snack-store-api/internal/cache"
 	"snack-store-api/internal/entity"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/model"
@@ -26,6 +27,7 @@ type RedemptionUseCase struct {
 	CustomerRepository   *repository.CustomerRepository
 	ProductRepository    *repository.ProductRepository
 	RedemptionRepository *repository.RedemptionRepository
+	Cache                cache.Cache
 }
 
 func NewRedemptionUseCase(
@@ -34,6 +36,7 @@ func NewRedemptionUseCase(
 	customerRepository *repository.CustomerRepository,
 	productRepository *repository.ProductRepository,
 	redemptionRepository *repository.RedemptionRepository,
+	cacheStore cache.Cache,
 ) *RedemptionUseCase {
 	return &RedemptionUseCase{
 		DB:                   db,
@@ -41,6 +44,7 @@ func NewRedemptionUseCase(
 		CustomerRepository:   customerRepository,
 		ProductRepository:    productRepository,
 		RedemptionRepository: redemptionRepository,
+		Cache:                cacheStore,
 	}
 }
 
@@ -138,5 +142,22 @@ func (c *RedemptionUseCase) Create(
 	redemption.Customer = customer
 	redemption.Product = product
 
+	c.invalidateCaches(ctx, &product)
+
 	return converter.RedemptionToResponse(&redemption), nil
+}
+
+func (c *RedemptionUseCase) invalidateCaches(ctx context.Context, product *entity.Product) {
+	if c.Cache == nil || product == nil {
+		return
+	}
+
+	cacheKey := "products:date:" + product.ManufacturedDate.Format("2006-01-02")
+	if err := c.Cache.Del(ctx, cacheKey); err != nil {
+		c.Log.Warnf("Failed to invalidate product cache : %+v", err)
+	}
+
+	if err := c.Cache.DelByPrefix(ctx, "report:transactions:"); err != nil {
+		c.Log.Warnf("Failed to invalidate report cache : %+v", err)
+	}
 }
