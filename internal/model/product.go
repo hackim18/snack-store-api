@@ -9,7 +9,7 @@ type GetProductRequest struct {
 type CreateProductRequest struct {
 	Name             string `json:"name" validate:"required"`
 	Type             string `json:"type" validate:"required"`
-	Flavor           string `json:"flavor" validate:"required"`
+	Flavor           string `json:"flavor" validate:"required,oneof='Jagung Bakar' 'Rumput Laut' 'Original' 'Jagung Manis' 'Keju Asin' 'Keju Manis' 'Pedas'"`
 	Size             string `json:"size" validate:"required,oneof=Small Medium Large"`
 	Price            int    `json:"price" validate:"required,gte=0"`
 	StockQty         int    `json:"stock_qty" validate:"required,gte=0"`
