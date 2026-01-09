@@ -1,0 +1,23 @@
+[
+  {
+    "ID": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "Name": "Fery",
+    "Points": 20,
+    "CreatedAt": "2025-10-01T08:00:00Z",
+    "UpdatedAt": "2025-10-01T08:00:00Z"
+  },
+  {
+    "ID": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+    "Name": "Fenty",
+    "Points": 25,
+    "CreatedAt": "2025-11-01T08:00:00Z",
+    "UpdatedAt": "2025-11-01T08:00:00Z"
+  },
+  {
+    "ID": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    "Name": "Kunjo",
+    "Points": 0,
+    "CreatedAt": "2025-12-01T08:00:00Z",
+    "UpdatedAt": "2025-12-01T08:00:00Z"
+  }
+]
