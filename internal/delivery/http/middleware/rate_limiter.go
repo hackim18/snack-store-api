@@ -17,8 +17,6 @@ import (
 	redisstore "github.com/ulule/limiter/v3/drivers/store/redis"
 )
 
-const defaultRateLimit = "60-M"
-
 func NewRateLimiter(viper *viper.Viper, redis *redis.Client) gin.HandlerFunc {
 	rateStr := strings.TrimSpace(viper.GetString("RATE_LIMIT"))
 	return NewRateLimiterWithRate(rateStr, redis)
@@ -65,7 +63,7 @@ func NewRateLimiterWithRate(rateStr string, redis *redis.Client) gin.HandlerFunc
 func parseRate(rateStr string) limiter.Rate {
 	trimmed := strings.TrimSpace(rateStr)
 	if trimmed == "" {
-		trimmed = defaultRateLimit
+		trimmed = constants.DefaultRateLimit
 	}
 
 	rate, err := limiter.NewRateFromFormatted(trimmed)

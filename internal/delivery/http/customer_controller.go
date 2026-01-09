@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/model"
 	"snack-store-api/internal/usecase"
@@ -18,11 +19,6 @@ type CustomerController struct {
 	UseCase  *usecase.CustomerUseCase
 	Validate *validator.Validate
 }
-
-const (
-	defaultCustomerPage     = 1
-	defaultCustomerPageSize = 10
-)
 
 func NewCustomerController(
 	useCase *usecase.CustomerUseCase,
@@ -41,8 +37,8 @@ func (c *CustomerController) List(ctx *gin.Context) {
 	page, pageSize, err := utils.ParsePagination(
 		ctx.Query("page"),
 		ctx.Query("page_size"),
-		defaultCustomerPage,
-		defaultCustomerPageSize,
+		constants.DefaultPage,
+		constants.DefaultPageSize,
 	)
 	if err != nil {
 		c.Log.Warnf("Failed to parse pagination : %+v", err)

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/model"
 	"snack-store-api/internal/usecase"
@@ -19,11 +20,6 @@ type TransactionController struct {
 	UseCase  *usecase.TransactionUseCase
 	Validate *validator.Validate
 }
-
-const (
-	defaultTransactionPage     = 1
-	defaultTransactionPageSize = 10
-)
 
 func NewTransactionController(
 	useCase *usecase.TransactionUseCase,
@@ -74,8 +70,8 @@ func (c *TransactionController) List(ctx *gin.Context) {
 	page, pageSize, err := utils.ParsePagination(
 		ctx.Query("page"),
 		ctx.Query("page_size"),
-		defaultTransactionPage,
-		defaultTransactionPageSize,
+		constants.DefaultPage,
+		constants.DefaultPageSize,
 	)
 	if err != nil {
 		c.Log.Warnf("Failed to parse pagination : %+v", err)

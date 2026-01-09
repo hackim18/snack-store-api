@@ -19,8 +19,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const reportLastTransactionLim = 10
-
 type ReportUseCase struct {
 	DB               *gorm.DB
 	Log              *logrus.Logger
@@ -116,7 +114,7 @@ func (c *ReportUseCase) Transactions(
 		c.DB.WithContext(ctx),
 		startDate,
 		endDate,
-		reportLastTransactionLim,
+		constants.ReportLastTransactionLimit,
 	)
 	if err != nil {
 		c.Log.Warnf("Failed to get last transactions : %+v", err)
