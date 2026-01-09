@@ -28,39 +28,19 @@ func Bootstrap(config *BootstrapConfig) {
 	customerRepository := repository.NewCustomerRepository(config.Log)
 	productRepository := repository.NewProductRepository(config.Log)
 	transactionRepository := repository.NewTransactionRepository(config.Log)
+	redemptionRepository := repository.NewRedemptionRepository(config.Log)
 
 	// Setup use cases
-	customerUseCase := usecase.NewCustomerUseCase(
-		config.DB,
-		config.Log,
-		customerRepository,
-	)
-	productUseCase := usecase.NewProductUseCase(
-		config.DB,
-		config.Log,
-		productRepository,
-		config.Cache,
-	)
-	transactionUseCase := usecase.NewTransactionUseCase(
-		config.DB,
-		config.Log,
-		customerRepository,
-		productRepository,
-		transactionRepository,
-	)
+	customerUseCase := usecase.NewCustomerUseCase(config.DB, config.Log, customerRepository)
+	productUseCase := usecase.NewProductUseCase(config.DB, config.Log, productRepository, config.Cache)
+	transactionUseCase := usecase.NewTransactionUseCase(config.DB, config.Log, customerRepository, productRepository, transactionRepository)
+	redemptionUseCase := usecase.NewRedemptionUseCase(config.DB, config.Log, customerRepository, productRepository, redemptionRepository)
 
 	// Setup controllers
-	customerController := http.NewCustomerController(
-		customerUseCase,
-		config.Log,
-		config.Validate,
-	)
+	customerController := http.NewCustomerController(customerUseCase, config.Log, config.Validate)
 	productController := http.NewProductController(productUseCase, config.Log, config.Validate)
-	transactionController := http.NewTransactionController(
-		transactionUseCase,
-		config.Log,
-		config.Validate,
-	)
+	transactionController := http.NewTransactionController(transactionUseCase, config.Log, config.Validate)
+	redemptionController := http.NewRedemptionController(redemptionUseCase, config.Log, config.Validate)
 
 	// Setup routes
 	routeConfig := route.RouteConfig{
@@ -68,6 +48,7 @@ func Bootstrap(config *BootstrapConfig) {
 		CustomerController:    customerController,
 		ProductController:     productController,
 		TransactionController: transactionController,
+		RedemptionController:  redemptionController,
 	}
 	routeConfig.Setup()
 }

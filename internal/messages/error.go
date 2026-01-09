@@ -14,4 +14,5 @@ const (
 	StatusNotFound           = "Resource not found"
 	ErrCreateProduct         = "Failed to create product"
 	ErrInsufficientStock     = "Insufficient stock"
+	ErrInsufficientPoints    = "Insufficient points"
 )

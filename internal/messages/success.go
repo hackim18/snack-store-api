@@ -7,4 +7,5 @@ const (
 	ProductCreated      = "Product created successfully"
 	TransactionCreated  = "Transaction created successfully"
 	TransactionsFetched = "Transactions fetched successfully"
+	RedemptionCreated   = "Redemption created successfully"
 )

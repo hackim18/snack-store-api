@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,6 +13,19 @@ const (
 	SizeMedium = "Medium"
 	SizeLarge  = "Large"
 )
+
+func PointsCost(size string) int {
+	switch strings.TrimSpace(size) {
+	case SizeSmall:
+		return 200
+	case SizeMedium:
+		return 300
+	case SizeLarge:
+		return 500
+	default:
+		return 0
+	}
+}
 
 type Product struct {
 	ID               uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`

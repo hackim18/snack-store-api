@@ -11,6 +11,7 @@ type RouteConfig struct {
 	CustomerController    *http.CustomerController
 	ProductController     *http.ProductController
 	TransactionController *http.TransactionController
+	RedemptionController  *http.RedemptionController
 }
 
 func (c *RouteConfig) Setup() {
@@ -19,5 +20,6 @@ func (c *RouteConfig) Setup() {
 	c.RegisterCustomerRoutes(api)
 	c.RegisterProductRoutes(api)
 	c.RegisterTransactionRoutes(api)
+	c.RegisterRedemptionRoutes(api)
 	c.RegisterCommonRoutes(c.Router)
 }
