@@ -94,7 +94,7 @@ func (c *TransactionUseCase) Create(
 
 	unitPrice := product.Price
 	totalPrice := unitPrice * request.Qty
-	pointsEarned := totalPrice / 1000
+	pointsEarned := entity.PointsEarned(totalPrice)
 
 	product.StockQty -= request.Qty
 	customer.Points += pointsEarned
