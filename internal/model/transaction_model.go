@@ -10,8 +10,10 @@ type CreateTransactionRequest struct {
 }
 
 type GetTransactionRequest struct {
-	Start string `json:"-" validate:"required,datetime=2006-01-02"`
-	End   string `json:"-" validate:"required,datetime=2006-01-02"`
+	Start    string `json:"-" validate:"required,datetime=2006-01-02"`
+	End      string `json:"-" validate:"required,datetime=2006-01-02"`
+	Page     int    `json:"-" validate:"gte=1"`
+	PageSize int    `json:"-" validate:"gte=1"`
 }
 
 type TransactionResponse struct {

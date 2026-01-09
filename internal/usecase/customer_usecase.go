@@ -32,11 +32,23 @@ func NewCustomerUseCase(
 	}
 }
 
-func (c *CustomerUseCase) List(ctx context.Context) ([]*model.CustomerResponse, error) {
-	customers, err := c.CustomerRepository.FindAll(c.DB.WithContext(ctx))
+func (c *CustomerUseCase) List(
+	ctx context.Context,
+	request *model.GetCustomerRequest,
+) ([]*model.CustomerResponse, model.PageMetadata, error) {
+	db := c.DB.WithContext(ctx)
+
+	totalItem, err := c.CustomerRepository.CountAll(db)
+	if err != nil {
+		c.Log.Warnf("Failed to count customers : %+v", err)
+		return nil, model.PageMetadata{}, utils.Error(messages.InternalServerError, http.StatusInternalServerError, err)
+	}
+
+	offset := (request.Page - 1) * request.PageSize
+	customers, err := c.CustomerRepository.FindAll(db, request.PageSize, offset)
 	if err != nil {
 		c.Log.Warnf("Failed to query customers : %+v", err)
-		return nil, utils.Error(messages.InternalServerError, http.StatusInternalServerError, err)
+		return nil, model.PageMetadata{}, utils.Error(messages.InternalServerError, http.StatusInternalServerError, err)
 	}
 
 	responses := make([]*model.CustomerResponse, 0, len(customers))
@@ -44,5 +56,6 @@ func (c *CustomerUseCase) List(ctx context.Context) ([]*model.CustomerResponse, 
 		responses = append(responses, converter.CustomerToResponse(&customers[i]))
 	}
 
-	return responses, nil
+	paging := utils.BuildPageMetadata(request.Page, request.PageSize, totalItem)
+	return responses, paging, nil
 }

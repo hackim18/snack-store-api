@@ -140,33 +140,44 @@ func (c *TransactionUseCase) Create(
 func (c *TransactionUseCase) List(
 	ctx context.Context,
 	request *model.GetTransactionRequest,
-) ([]*model.TransactionResponse, error) {
+) ([]*model.TransactionResponse, model.PageMetadata, error) {
 	startDate, err := time.Parse("2006-01-02", strings.TrimSpace(request.Start))
 	if err != nil {
 		c.Log.Warnf("Invalid start date : %+v", err)
-		return nil, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
+		return nil, model.PageMetadata{}, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
 	}
 
 	endDate, err := time.Parse("2006-01-02", strings.TrimSpace(request.End))
 	if err != nil {
 		c.Log.Warnf("Invalid end date : %+v", err)
-		return nil, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
+		return nil, model.PageMetadata{}, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
 	}
 
 	if endDate.Before(startDate) {
-		return nil, utils.Error(messages.InvalidRequestData, http.StatusBadRequest, nil)
+		return nil, model.PageMetadata{}, utils.Error(messages.InvalidRequestData, http.StatusBadRequest, nil)
 	}
 
 	endDate = endDate.AddDate(0, 0, 1)
 
+	db := c.DB.WithContext(ctx)
+
+	totalItem, err := c.TransactionRepository.CountByDateRange(db, startDate, endDate)
+	if err != nil {
+		c.Log.Warnf("Failed to count transactions : %+v", err)
+		return nil, model.PageMetadata{}, utils.Error(messages.InternalServerError, http.StatusInternalServerError, err)
+	}
+
+	offset := (request.Page - 1) * request.PageSize
 	transactions, err := c.TransactionRepository.FindByDateRange(
-		c.DB.WithContext(ctx),
+		db,
 		startDate,
 		endDate,
+		request.PageSize,
+		offset,
 	)
 	if err != nil {
 		c.Log.Warnf("Failed to query transactions : %+v", err)
-		return nil, utils.Error(messages.InternalServerError, http.StatusInternalServerError, err)
+		return nil, model.PageMetadata{}, utils.Error(messages.InternalServerError, http.StatusInternalServerError, err)
 	}
 
 	responses := make([]*model.TransactionResponse, 0, len(transactions))
@@ -174,7 +185,8 @@ func (c *TransactionUseCase) List(
 		responses = append(responses, converter.TransactionToResponse(&transactions[i]))
 	}
 
-	return responses, nil
+	paging := utils.BuildPageMetadata(request.Page, request.PageSize, totalItem)
+	return responses, paging, nil
 }
 
 func (c *TransactionUseCase) invalidateCaches(ctx context.Context, product *entity.Product) {

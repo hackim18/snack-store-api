@@ -18,8 +18,14 @@ func NewCustomerRepository(log *logrus.Logger) *CustomerRepository {
 	}
 }
 
-func (r *CustomerRepository) FindAll(db *gorm.DB) ([]entity.Customer, error) {
+func (r *CustomerRepository) FindAll(db *gorm.DB, limit int, offset int) ([]entity.Customer, error) {
 	var customers []entity.Customer
-	err := db.Order("created_at desc").Find(&customers).Error
+	err := db.Order("created_at desc").Limit(limit).Offset(offset).Find(&customers).Error
 	return customers, err
+}
+
+func (r *CustomerRepository) CountAll(db *gorm.DB) (int64, error) {
+	var total int64
+	err := db.Model(&entity.Customer{}).Count(&total).Error
+	return total, err
 }

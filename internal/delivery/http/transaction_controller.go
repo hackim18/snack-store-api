@@ -20,6 +20,11 @@ type TransactionController struct {
 	Validate *validator.Validate
 }
 
+const (
+	defaultTransactionPage     = 1
+	defaultTransactionPageSize = 10
+)
+
 func NewTransactionController(
 	useCase *usecase.TransactionUseCase,
 	logger *logrus.Logger,
@@ -66,6 +71,20 @@ func (c *TransactionController) List(ctx *gin.Context) {
 	request := new(model.GetTransactionRequest)
 	request.Start = strings.TrimSpace(ctx.Query("start"))
 	request.End = strings.TrimSpace(ctx.Query("end"))
+	page, pageSize, err := utils.ParsePagination(
+		ctx.Query("page"),
+		ctx.Query("page_size"),
+		defaultTransactionPage,
+		defaultTransactionPageSize,
+	)
+	if err != nil {
+		c.Log.Warnf("Failed to parse pagination : %+v", err)
+		utils.HandleHTTPError(ctx, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err))
+		return
+	}
+
+	request.Page = page
+	request.PageSize = pageSize
 
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.Warnf("Validation failed : %+v", err)
@@ -74,13 +93,13 @@ func (c *TransactionController) List(ctx *gin.Context) {
 		return
 	}
 
-	response, err := c.UseCase.List(ctx.Request.Context(), request)
+	response, paging, err := c.UseCase.List(ctx.Request.Context(), request)
 	if err != nil {
 		c.Log.Warnf("Failed to get transactions : %+v", err)
 		utils.HandleHTTPError(ctx, err)
 		return
 	}
 
-	res := utils.SuccessResponse(messages.TransactionsFetched, response)
+	res := utils.SuccessWithPaginationResponse(messages.TransactionsFetched, response, paging)
 	ctx.JSON(http.StatusOK, res)
 }
