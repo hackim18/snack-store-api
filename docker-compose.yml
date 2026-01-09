@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    command: ["--drop-table", "--migrate", "--seed", "--run"]
+    environment:
+      APP_NAME: snack-store-api
+      PORT: 8080
+      LOG_LEVEL: info
+      DB_USERNAME: snack
+      DB_PASSWORD: snack
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: snack_store
+      DB_POOL_IDLE: 10
+      DB_POOL_MAX: 100
+      DB_POOL_LIFETIME: 300
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      REDIS_DB: 0
+      RATE_LIMIT: 60-M
+      DROP_TABLE_NAMES: customers,products,redemptions,transactions
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: snack
+      POSTGRES_PASSWORD: snack
+      POSTGRES_DB: snack_store
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
