@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/entity"
 	"snack-store-api/internal/model"
 )
@@ -17,6 +18,6 @@ func TransactionToResponse(transaction *entity.Transaction) *model.TransactionRe
 		UnitPrice:     transaction.UnitPrice,
 		TotalPrice:    transaction.TotalPrice,
 		PointsEarned:  transaction.PointsEarned,
-		TransactionAt: transaction.TransactionAt.Format("2006-01-02T15:04:05Z07:00"),
+		TransactionAt: transaction.TransactionAt.Format(constants.DateTimeLayout),
 	}
 }

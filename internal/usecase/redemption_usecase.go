@@ -59,7 +59,7 @@ func (c *RedemptionUseCase) Create(
 		return nil, utils.Error(messages.ErrInvalidIDFormat, http.StatusBadRequest, err)
 	}
 
-	redeemAt, err := time.Parse(time.RFC3339, strings.TrimSpace(request.RedeemAt))
+	redeemAt, err := time.Parse(constants.DateTimeLayout, strings.TrimSpace(request.RedeemAt))
 	if err != nil {
 		c.Log.Warnf("Invalid redeem_at format : %+v", err)
 		return nil, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
@@ -153,7 +153,7 @@ func (c *RedemptionUseCase) invalidateCaches(ctx context.Context, product *entit
 		return
 	}
 
-	cacheKey := constants.ProductCacheKeyPrefix + product.ManufacturedDate.Format("2006-01-02")
+	cacheKey := constants.ProductCacheKeyPrefix + product.ManufacturedDate.Format(constants.DateLayout)
 	if err := c.Cache.Del(ctx, cacheKey); err != nil {
 		c.Log.Warnf("Failed to invalidate product cache : %+v", err)
 	}

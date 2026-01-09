@@ -44,7 +44,7 @@ func (c *ProductUseCase) ListByDate(
 	ctx context.Context,
 	request *model.GetProductRequest,
 ) ([]*model.ProductResponse, error) {
-	manufacturedDate, err := time.Parse("2006-01-02", request.Date)
+	manufacturedDate, err := time.Parse(constants.DateLayout, request.Date)
 	if err != nil {
 		c.Log.Warnf("Invalid manufactured_date format : %+v", err)
 		return nil, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
@@ -93,7 +93,7 @@ func (c *ProductUseCase) Create(
 	ctx context.Context,
 	request *model.CreateProductRequest,
 ) (*model.ProductResponse, error) {
-	manufacturedDate, err := time.Parse("2006-01-02", request.ManufacturedDate)
+	manufacturedDate, err := time.Parse(constants.DateLayout, request.ManufacturedDate)
 	if err != nil {
 		c.Log.Warnf("Invalid manufactured_date format : %+v", err)
 		return nil, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)

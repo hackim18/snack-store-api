@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"snack-store-api/internal/cache"
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/entity"
 	"snack-store-api/internal/messages"
 	"snack-store-api/internal/model"
@@ -58,7 +59,7 @@ func (c *TransactionUseCase) Create(
 		return nil, utils.Error(messages.ErrInvalidIDFormat, http.StatusBadRequest, err)
 	}
 
-	transactionAt, err := time.Parse(time.RFC3339, strings.TrimSpace(request.TransactionAt))
+	transactionAt, err := time.Parse(constants.DateTimeLayout, strings.TrimSpace(request.TransactionAt))
 	if err != nil {
 		c.Log.Warnf("Invalid transaction_at format : %+v", err)
 		return nil, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
@@ -141,13 +142,13 @@ func (c *TransactionUseCase) List(
 	ctx context.Context,
 	request *model.GetTransactionRequest,
 ) ([]*model.TransactionResponse, model.PageMetadata, error) {
-	startDate, err := time.Parse("2006-01-02", strings.TrimSpace(request.Start))
+	startDate, err := time.Parse(constants.DateLayout, strings.TrimSpace(request.Start))
 	if err != nil {
 		c.Log.Warnf("Invalid start date : %+v", err)
 		return nil, model.PageMetadata{}, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
 	}
 
-	endDate, err := time.Parse("2006-01-02", strings.TrimSpace(request.End))
+	endDate, err := time.Parse(constants.DateLayout, strings.TrimSpace(request.End))
 	if err != nil {
 		c.Log.Warnf("Invalid end date : %+v", err)
 		return nil, model.PageMetadata{}, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
@@ -194,12 +195,12 @@ func (c *TransactionUseCase) invalidateCaches(ctx context.Context, product *enti
 		return
 	}
 
-	cacheKey := "products:date:" + product.ManufacturedDate.Format("2006-01-02")
+	cacheKey := constants.ProductCacheKeyPrefix + product.ManufacturedDate.Format(constants.DateLayout)
 	if err := c.Cache.Del(ctx, cacheKey); err != nil {
 		c.Log.Warnf("Failed to invalidate product cache : %+v", err)
 	}
 
-	if err := c.Cache.DelByPrefix(ctx, "report:transactions:"); err != nil {
+	if err := c.Cache.DelByPrefix(ctx, constants.ReportCacheKeyPrefix); err != nil {
 		c.Log.Warnf("Failed to invalidate report cache : %+v", err)
 	}
 }

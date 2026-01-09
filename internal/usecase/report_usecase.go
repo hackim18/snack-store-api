@@ -49,13 +49,13 @@ func (c *ReportUseCase) Transactions(
 	startStr := strings.TrimSpace(request.Start)
 	endStr := strings.TrimSpace(request.End)
 
-	startDate, err := time.Parse("2006-01-02", startStr)
+	startDate, err := time.Parse(constants.DateLayout, startStr)
 	if err != nil {
 		c.Log.Warnf("Invalid start date : %+v", err)
 		return nil, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
 	}
 
-	endDate, err := time.Parse("2006-01-02", endStr)
+	endDate, err := time.Parse(constants.DateLayout, endStr)
 	if err != nil {
 		c.Log.Warnf("Invalid end date : %+v", err)
 		return nil, utils.Error(messages.FailedInputFormat, http.StatusBadRequest, err)
@@ -172,7 +172,7 @@ func mapReportTransaction(transaction *entity.Transaction) *model.ReportTransact
 		UnitPrice:     transaction.UnitPrice,
 		TotalPrice:    transaction.TotalPrice,
 		PointsEarned:  transaction.PointsEarned,
-		TransactionAt: transaction.TransactionAt.Format("2006-01-02T15:04:05Z07:00"),
+		TransactionAt: transaction.TransactionAt.Format(constants.DateTimeLayout),
 		IsNewCustomer: isNewCustomer,
 	}
 }

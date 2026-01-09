@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/entity"
 	"snack-store-api/internal/model"
 )
@@ -15,6 +16,6 @@ func ProductToResponse(product *entity.Product) *model.ProductResponse {
 		Size:             product.Size,
 		Price:            product.Price,
 		StockQty:         product.StockQty,
-		ManufacturedDate: product.ManufacturedDate.Format("2006-01-02"),
+		ManufacturedDate: product.ManufacturedDate.Format(constants.DateLayout),
 	}
 }

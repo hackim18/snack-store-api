@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"snack-store-api/internal/constants"
 	"snack-store-api/internal/entity"
 	"snack-store-api/internal/model"
 )
@@ -14,6 +15,6 @@ func RedemptionToResponse(redemption *entity.Redemption) *model.RedemptionRespon
 		Size:         redemption.Product.Size,
 		Qty:          redemption.Qty,
 		PointsSpent:  redemption.PointsSpent,
-		RedeemAt:     redemption.RedeemAt.Format("2006-01-02T15:04:05Z07:00"),
+		RedeemAt:     redemption.RedeemAt.Format(constants.DateTimeLayout),
 	}
 }
