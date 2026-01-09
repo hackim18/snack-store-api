@@ -19,6 +19,10 @@ func NewViper() *viper.Viper {
 	config.SetDefault("DB_POOL_IDLE", 10)
 	config.SetDefault("DB_POOL_MAX", 100)
 	config.SetDefault("DB_POOL_LIFETIME", 300)
+	config.SetDefault("REDIS_HOST", "localhost")
+	config.SetDefault("REDIS_PORT", 6379)
+	config.SetDefault("REDIS_PASSWORD", "")
+	config.SetDefault("REDIS_DB", 0)
 
 	config.SetConfigFile(".env")
 
