@@ -376,6 +376,7 @@ components:
           type: string
         flavor:
           type: string
+          enum: ["Jagung Bakar", "Rumput Laut", "Original", "Jagung Manis", "Keju Asin", "Keju Manis", "Pedas"]
         size:
           type: string
           enum: [Small, Medium, Large]
@@ -399,6 +400,7 @@ components:
           type: string
         flavor:
           type: string
+          enum: ["Jagung Bakar", "Rumput Laut", "Original", "Jagung Manis", "Keju Asin", "Keju Manis", "Pedas"]
         size:
           type: string
           enum: [Small, Medium, Large]
@@ -481,6 +483,7 @@ components:
           type: string
         flavor:
           type: string
+          enum: ["Jagung Bakar", "Rumput Laut", "Original", "Jagung Manis", "Keju Asin", "Keju Manis", "Pedas"]
         qty:
           type: integer
         unit_price:
@@ -569,6 +572,7 @@ components:
           type: string
         flavor:
           type: string
+          enum: ["Jagung Bakar", "Rumput Laut", "Original", "Jagung Manis", "Keju Asin", "Keju Manis", "Pedas"]
         total_qty:
           type: integer
 
@@ -586,6 +590,7 @@ components:
           type: string
         flavor:
           type: string
+          enum: ["Jagung Bakar", "Rumput Laut", "Original", "Jagung Manis", "Keju Asin", "Keju Manis", "Pedas"]
         qty:
           type: integer
         unit_price:
