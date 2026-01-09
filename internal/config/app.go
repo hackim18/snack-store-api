@@ -3,12 +3,14 @@ package config
 import (
 	"snack-store-api/internal/cache"
 	"snack-store-api/internal/delivery/http"
+	"snack-store-api/internal/delivery/http/middleware"
 	"snack-store-api/internal/delivery/http/route"
 	"snack-store-api/internal/repository"
 	"snack-store-api/internal/usecase"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -19,8 +21,9 @@ type BootstrapConfig struct {
 	DB       *gorm.DB
 	Log      *logrus.Logger
 	Validate *validator.Validate
-	Config   *viper.Viper
+	Viper    *viper.Viper
 	Cache    cache.Cache
+	Redis    *redis.Client
 }
 
 func Bootstrap(config *BootstrapConfig) {
@@ -45,6 +48,9 @@ func Bootstrap(config *BootstrapConfig) {
 	redemptionController := http.NewRedemptionController(redemptionUseCase, config.Log, config.Validate)
 	reportController := http.NewReportController(reportUseCase, config.Log, config.Validate)
 
+	// Setup middleware
+	rateLimiterMiddleware := middleware.NewRateLimiter(config.Viper, config.Redis)
+
 	// Setup routes
 	routeConfig := route.RouteConfig{
 		Router:                config.Router,
@@ -53,6 +59,7 @@ func Bootstrap(config *BootstrapConfig) {
 		TransactionController: transactionController,
 		RedemptionController:  redemptionController,
 		ReportController:      reportController,
+		RateLimiter:           rateLimiterMiddleware,
 	}
 	routeConfig.Setup()
 }

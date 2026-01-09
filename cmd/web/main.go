@@ -22,8 +22,9 @@ func main() {
 		Router:   router,
 		Log:      log,
 		Validate: validate,
-		Config:   viperConfig,
+		Viper:    viperConfig,
 		Cache:    cacheClient,
+		Redis:    redisClient,
 	})
 
 	if !executor.Execute(log) {

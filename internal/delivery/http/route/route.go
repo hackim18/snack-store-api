@@ -13,10 +13,12 @@ type RouteConfig struct {
 	TransactionController *http.TransactionController
 	RedemptionController  *http.RedemptionController
 	ReportController      *http.ReportController
+	RateLimiter           gin.HandlerFunc
 }
 
 func (c *RouteConfig) Setup() {
 	api := c.Router.Group("/api")
+	api.Use(c.RateLimiter)
 
 	c.RegisterCustomerRoutes(api)
 	c.RegisterProductRoutes(api)

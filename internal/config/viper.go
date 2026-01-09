@@ -23,6 +23,7 @@ func NewViper() *viper.Viper {
 	config.SetDefault("REDIS_PORT", 6379)
 	config.SetDefault("REDIS_PASSWORD", "")
 	config.SetDefault("REDIS_DB", 0)
+	config.SetDefault("RATE_LIMIT", "60-M")
 
 	config.SetConfigFile(".env")
 
