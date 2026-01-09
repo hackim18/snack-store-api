@@ -9,9 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func FailedResponse(message string) model.WebResponse[any] {
+func FailedResponse(code string, message string) model.WebResponse[any] {
 	return model.WebResponse[any]{
-		Errors: message,
+		Error: &model.ErrorResponse{
+			Code:    code,
+			Message: message,
+		},
 	}
 }
 
@@ -41,12 +44,13 @@ func HandleHTTPError(ctx *gin.Context, err error) {
 	var httpErr HTTPError
 
 	if errors.As(err, &httpErr) {
-		res := FailedResponse(httpErr.Message())
+		code := errorCodeFromStatus(httpErr.Status())
+		res := FailedResponse(code, httpErr.Message())
 		ctx.AbortWithStatusJSON(httpErr.Status(), res)
 		return
 	}
 
-	res := FailedResponse(messages.InternalServerError)
+	res := FailedResponse(errorCodeFromStatus(http.StatusInternalServerError), messages.InternalServerError)
 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, res)
 }
 
@@ -66,5 +70,26 @@ func SuccessWithPaginationResponse[T any](
 		Message: message,
 		Data:    data,
 		Paging:  &paging,
+	}
+}
+
+func errorCodeFromStatus(status int) string {
+	switch status {
+	case http.StatusBadRequest:
+		return "VALIDATION_ERROR"
+	case http.StatusUnauthorized:
+		return "UNAUTHORIZED"
+	case http.StatusForbidden:
+		return "FORBIDDEN"
+	case http.StatusNotFound:
+		return "NOT_FOUND"
+	case http.StatusConflict:
+		return "CONFLICT"
+	case http.StatusTooManyRequests:
+		return "TOO_MANY_REQUESTS"
+	case http.StatusUnprocessableEntity:
+		return "UNPROCESSABLE_ENTITY"
+	default:
+		return "INTERNAL_SERVER_ERROR"
 	}
 }

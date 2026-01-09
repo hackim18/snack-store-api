@@ -1,10 +1,15 @@
 package model
 
 type WebResponse[T any] struct {
-	Message string        `json:"message,omitempty"`
-	Data    T             `json:"data,omitempty"`
-	Paging  *PageMetadata `json:"paging,omitempty"`
-	Errors  string        `json:"errors,omitempty"`
+	Message string         `json:"message,omitempty"`
+	Data    T              `json:"data,omitempty"`
+	Paging  *PageMetadata  `json:"paging,omitempty"`
+	Error   *ErrorResponse `json:"error,omitempty"`
+}
+
+type ErrorResponse struct {
+	Code    string `json:"code,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 type PageMetadata struct {
